@@ -1,0 +1,13 @@
+{
+  "name": "CHROSys Preview",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "CHROSys WEBSTACK-X Preview",
+      "protocol": "http",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postStartCommand": "pkill -f 'python3 -m http.server 8080' || true; nohup python3 -m http.server 8080 --bind 0.0.0.0 >/tmp/chrosys-preview.log 2>&1 &"
+}
