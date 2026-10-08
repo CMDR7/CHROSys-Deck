@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#060809">
+  <meta name="description" content="CHROSys Deck - dependency-free Chrome internal systems development and diagnostic dashboard.">
+  <title>CHROSys Deck // Internal Function Matrix</title>
+  <link rel="stylesheet" href="css/chrosys.css">
+</head>
+<body>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="eyebrow">CHROME INTERNAL SYSTEMS // DEVELOPMENT DECK</div>
+        <h1>CHRO<span>Sys</span> <b>DECK</b></h1>
+        <div class="subline">INTERNAL FUNCTION MATRIX <i>SYSINT-01</i></div>
+      </div>
+      <div class="system-state">
+        <span class="pulse"></span><span id="systemState">SYSTEM READY</span>
+        <small id="clock">--:--:--</small>
+      </div>
+    </header>
+
+    <section class="environment panel">
+      <div class="panel-title"><span>01</span> TARGET ENVIRONMENT</div>
+      <div class="env-grid">
+        <label class="select-wrap">PLATFORM
+          <select id="platformSelect">
+            <option value="desktop">DESKTOP CHROME</option>
+            <option value="android">ANDROID CHROME</option>
+            <option value="webview">ANDROID WEBVIEW</option>
+          </select>
+        </label>
+        <button class="mode-switch" id="rememberToggle" type="button" aria-pressed="false">REMEMBER: OFF</button>
+        <button class="ghost-btn" id="importBtn" type="button">IMPORT MATRIX</button>
+        <button class="ghost-btn" id="resetBtn" type="button">RESET LOCAL DATA</button>
+      </div>
+    </section>
+
+    <section class="command panel">
+      <div class="panel-title"><span>02</span> COMMAND DECK</div>
+      <div class="command-line">
+        <span class="prompt">&gt;</span>
+        <input id="commandInput" autocomplete="off" spellcheck="false" placeholder="search, category, info, open, favorites, recent..." aria-label="CHROSys command input">
+        <button id="clearCommand" type="button" title="Clear command">×</button>
+      </div>
+      <div class="command-hints">
+        <button data-command="gpu">GPU</button><button data-command="network">NETWORK</button><button data-command="media">MEDIA</button><button data-command="system">SYSTEM</button><button data-command="favorites">FAVORITES</button><button data-command="recent">RECENT</button>
+      </div>
+    </section>
+
+    <section class="matrix-head">
+      <div>
+        <div class="panel-title"><span>03</span> FUNCTION MATRIX</div>
+        <p id="matrixSummary">Loading registry...</p>
+      </div>
+      <div class="matrix-tools">
+        <label class="search-box"><span>⌕</span><input id="searchInput" placeholder="Filter functions..." aria-label="Filter functions"></label>
+        <select id="categorySelect" aria-label="Filter by category"><option value="all">ALL SECTORS</option></select>
+      </div>
+    </section>
+
+    <section id="functionGrid" class="function-grid" aria-live="polite"></section>
+
+    <footer class="telemetry">
+      <span>CHROSys DECK // VANILLA CORE</span>
+      <span id="telemetryStats">FUNCTIONS: --</span>
+      <span>DEPENDENCIES: 0</span>
+      <span>NAV: NATIVE / BEST EFFORT</span>
+      <span>BUILD: 0.1.0</span>
+    </footer>
+  </main>
+
+  <div class="modal-backdrop" id="platformModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="platformTitle">
+      <div class="modal-kicker">INITIAL SYSTEM CONFIGURATION</div>
+      <h2 id="platformTitle">SELECT TARGET ENVIRONMENT</h2>
+      <p>CHROSys Deck can adapt its status and metadata to the environment you are using. You can change this at any time from the main deck.</p>
+      <div class="platform-options">
+        <button data-platform="desktop">DESKTOP CHROME<small>Full browser environment</small></button>
+        <button data-platform="android">ANDROID CHROME<small>Mobile Chrome environment</small></button>
+        <button data-platform="webview">ANDROID WEBVIEW<small>Embedded Chromium surface</small></button>
+      </div>
+      <label class="check-row"><input type="checkbox" id="rememberInitial"> Remember selection</label>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="executionModal" hidden>
+    <section class="modal execution" role="dialog" aria-modal="true" aria-labelledby="executionTitle">
+      <div class="modal-kicker">EXECUTION REQUEST</div>
+      <h2 id="executionTitle">TARGET ACQUIRED</h2>
+      <div class="target-readout"><strong id="execName">—</strong><code id="execUrl">—</code><span id="execCategory">—</span></div>
+      <div class="warning" id="execWarning">Chrome internal pages are privileged browser surfaces. A normal web page may be prevented from navigating directly to this target.</div>
+      <div class="modal-actions"><button class="green-btn" id="openTarget">OPEN / CONTINUE</button><button class="ghost-btn" id="copyTarget">COPY INTERNAL URL</button><button class="ghost-btn" id="cancelExecution">CANCEL</button></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="infoModal" hidden>
+    <section class="modal info-modal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+      <div class="modal-kicker">FUNCTION INTELLIGENCE</div>
+      <h2 id="infoTitle">—</h2>
+      <code id="infoUrl">—</code>
+      <div class="info-meta" id="infoMeta"></div>
+      <p id="infoDescription">—</p>
+      <div class="technical-detail" id="infoDetails">—</div>
+      <div class="modal-actions"><button class="green-btn" id="infoStart">START FUNCTION</button><button class="ghost-btn" id="infoClose">CLOSE</button></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="importModal" hidden>
+    <section class="modal import-modal" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+      <div class="modal-kicker">MATRIX INGESTION</div>
+      <h2 id="importTitle">IMPORT CHROME://CHROME-URLS</h2>
+      <p>Paste the text or HTML copied from your Chrome internal URL list. CHROSys will extract Chrome and chrome-untrusted URLs and retain them locally.</p>
+      <textarea id="importText" spellcheck="false" placeholder="Paste chrome://chrome-urls content here..."></textarea>
+      <div class="modal-actions"><button class="green-btn" id="runImport">SCAN / COMPARE</button><button class="ghost-btn" id="cancelImport">CANCEL</button></div>
+      <pre id="importResult" class="import-result" hidden></pre>
+    </section>
+  </div>
+
+  <script src="js/functions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
