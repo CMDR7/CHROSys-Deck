@@ -6,7 +6,8 @@
     execName: $('#execName'), execUrl: $('#execUrl'), execCategory: $('#execCategory'), infoTitle: $('#infoTitle'), infoUrl: $('#infoUrl'), infoMeta: $('#infoMeta'), infoDescription: $('#infoDescription'), infoDetails: $('#infoDetails'), importText: $('#importText'), importResult: $('#importResult')
   };
   const KEY = 'chrosys.deck.v1';
-  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (_) { localStorage.removeItem(KEY); }
   const state = {
     platform: saved.platform || detectPlatform(),
     remember: !!saved.remember,
@@ -83,10 +84,12 @@
   function closeModals() { document.querySelectorAll('.modal-backdrop').forEach(x => x.hidden = true); selected = null; }
   function attemptOpen(item) {
     setStatus(`NAV REQUEST // ${item.url}`);
-    try { window.open(item.url, '_blank', 'noopener'); } catch (_) { /* browser policy handled by fallback */ }
+    try { window.open(item.url, '_blank', 'noopener'); } catch (_) { setStatus('NAVIGATION BLOCKED // COPY URL'); }
   }
   function copyTarget(item) {
-    navigator.clipboard?.writeText(item.url).then(() => setStatus('URL COPIED TO CLIPBOARD')).catch(() => setStatus('COPY BLOCKED // SELECT URL MANUALLY'));
+    const write = navigator.clipboard?.writeText?.(item.url);
+    if (write && typeof write.then === 'function') write.then(() => setStatus('URL COPIED TO CLIPBOARD')).catch(() => setStatus('COPY BLOCKED // SELECT URL MANUALLY'));
+    else setStatus('CLIPBOARD API UNAVAILABLE // SELECT URL MANUALLY');
   }
   function executeCommand(raw) {
     const input = raw.trim(); if (!input) return;
@@ -108,9 +111,7 @@
     if (userAction) setStatus(`TARGET // ${value.toUpperCase()}`);
   }
   function initializePlatform() {
-    if (!saved.platform || !saved.remember) {
-      els.platformModal.hidden = false;
-    }
+    if (!saved.platform || !saved.remember) els.platformModal.hidden = false;
   }
 
   els.grid.addEventListener('click', e => {
